@@ -12,45 +12,43 @@ using System.Web.Http.Description;
 using System.Web.Http.Results;
 using WebApi.Models;
 using System.Web.Mvc;
+using Newtonsoft.Json;
 
 namespace WebApi.Controllers
 {
     public class BooksController : ApiController
     {
         private WebApiContext db = new WebApiContext();
-        static readonly HttpClient client = new HttpClient();
-        static async Task Main()
-        {
-            // Call asynchronous network methods in a try/catch block to handle exceptions.
-            try
-            {
-                HttpResponseMessage response = await client.GetAsync("http://fakerestapi.azurewebsites.net/api/v1/Books");
-                response.EnsureSuccessStatusCode();
-                string responseBody = await response.Content.ReadAsStringAsync();
-                // Above three lines can be replaced with new helper method below
-                // string responseBody = await client.GetStringAsync(uri);
+        static HttpClient client = new HttpClient();
 
-                Console.WriteLine(responseBody);
-            }
-            catch (HttpRequestException e)
-            {
-                Console.WriteLine("\nException Caught!");
-                Console.WriteLine("Message :{0} ", e.Message);
-            }
-        }
-        // GET: api/Books
-        public IQueryable<Book> GetBooks()
+        //GET: api/Books
+        public async Task<Book> GetBooks()
         {
-            return db.Books;
-        }
+            Book book = null;
 
-        [System.Web.Http.HttpPost]
-        public string Post(Book obj)
-        {
-            return obj.id + obj.title + obj.description + obj.pageCount + obj.excerpt + obj.publishDate;
+            HttpResponseMessage response = await client.GetAsync("http://fakerestapi.azurewebsites.net/api/v1/Books");
+            if (response.IsSuccessStatusCode)
+            {
+                //Cannot deserialize the current JSON array into type 'WebApi.Models.Book' 
+                book = await response.Content.ReadAsAsync<Book>();
+            }
+            return book;
         }
 
         // GET: api/Books/5
+
+        //public async Task<Book> GetBook(int id)
+        //{
+        //    Book book = null;
+
+        //    HttpResponseMessage response = await client.GetAsync("http://fakerestapi.azurewebsites.net/api/v1/Books/" + id);
+        //    if (response.IsSuccessStatusCode)
+        //    {
+        //        //Cannot deserialize the current JSON array into type 'WebApi.Models.Book' 
+        //        book = await response.Content.ReadAsAsync<Book>();
+        //    }
+        //    return book;
+        //}
         [ResponseType(typeof(Book))]
         public async Task<IHttpActionResult> GetBook(int id)
         {

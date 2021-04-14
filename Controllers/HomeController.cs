@@ -14,11 +14,5 @@ namespace WebApi.Controllers
 
             return View();
         }
-        public ActionResult Api()
-        {
-            ViewBag.Title = "Book Service";
-
-            return View();
-        }
     }
 }
